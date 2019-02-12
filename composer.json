@@ -1,0 +1,17 @@
+{
+	"description": "Codeigniter 3.1.10 with HMVC in 2019 by xttrust",
+	"name": "xttrust/codeigniter_3.1.10_hmvc",
+	"type": "project",
+	"homepage": "https://github.com/xttrust/codeigniter_3.1.10_hmvc",
+	"license": "MIT",
+	"require": {
+		"php": ">=5.2.4"
+	},
+	"suggest": {
+		"paragonie/random_compat": "Provides better randomness in PHP 5.x"
+	},
+	"require-dev": {
+		"mikey179/vfsStream": "1.1.*",
+		"phpunit/phpunit": "4.* || 5.*"
+	}
+}
