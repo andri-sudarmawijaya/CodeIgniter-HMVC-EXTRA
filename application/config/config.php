@@ -25,9 +25,9 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 */
 if ((!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || $_SERVER['SERVER_PORT'] == 443) {
 
-    $config['base_url'] = 'https://localhost/codeigniter_3.1.10_hmvc/';
+    $config['base_url'] = 'https://localhost/CodeIgniter-HMVC-EXTRA/';
 } else {
-    $config['base_url'] = 'http://localhost/codeigniter_3.1.10_hmvc/';
+    $config['base_url'] = 'http://localhost/CodeIgniter-HMVC-EXTRA/';
 }
 
 /*
