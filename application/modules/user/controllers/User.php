@@ -10,10 +10,7 @@ class User extends MX_Controller {
 
     function __construct() {
         parent::__construct();
-        
-        $this->load->library('form_validation');
-        $this->form_validation->CI = & $this;
-        
+
         $this->load->model("user_model");
         $this->model = $this->user_model;
 
@@ -66,6 +63,118 @@ class User extends MX_Controller {
         echo Modules::run('template/admin', $data);
 	}
 
+	public function create() {
+
+        // Check security
+        $this->site_security->_make_sure_is_admin();
+
+        $update_id = $this->uri->segment(3);
+
+        if (isset($update_id)) {
+            $row = $this->get_where_row('id', $update_id);
+            if (!$row) {
+                show_404();
+            }
+        }
+
+        $submit = $this->input->post('submit', TRUE);
+
+        if ($submit == "Cancel") {
+            redirect('user/manage');
+        }
+
+        if ($submit == "Submit") {
+            // Process the form
+            $data = $this->fetch_data_from_post();
+            $password = trim($this->input->post('password', TRUE));
+
+            $this->form_validation->set_rules('first_name', 'First Name', 'required|min_length[2]|max_length[50]');
+            $this->form_validation->set_rules('last_name', 'Last Name', 'required|min_length[2]|max_length[50]');
+
+            if (!is_numeric($update_id)) {
+                $this->form_validation->set_rules('password', 'Password', 'required|min_length[5]|max_length[35]');
+                $this->form_validation->set_rules('repeat_password', 'Repeat Password', 'required|matches[password]');
+                $this->form_validation->set_rules('username', 'Username', 'required|min_length[3]|max_length[20]|is_unique[user.username]');
+            } else {
+                if (empty($password)) {
+                    unset($data['password']);
+                } else {
+                    $this->form_validation->set_rules('password', 'Password', 'required|min_length[5]|max_length[35]');
+                    $this->form_validation->set_rules('repeat_password', 'Repeat Password', 'required|matches[password]');
+                }
+            }
+
+            // Get the user by update id and check for same email
+            $user_to_update = $this->user->get_where_row('id', $update_id);
+            $posted_email = $this->input->post('email', TRUE);
+            if (($user_to_update) && $user_to_update->email == $posted_email) {
+                $this->form_validation->set_rules('email', 'Email', 'required|min_length[8]|max_length[50]');
+            } else {
+                $this->form_validation->set_rules('email', 'Email', 'required|min_length[8]|max_length[50]|is_unique[user.email]');
+            }
+
+
+            if ($this->form_validation->run() == TRUE) {
+                // Get the variables
+
+                if (!empty($password)) {
+                    $data['hash_pass'] = custom_hash("sha256", $this->input->post("password"), HASH_KEY);
+                }
+
+                $data['register_date'] = curent_date_for_mysql();
+
+                if (is_numeric($update_id)) {
+                    // Unset data for update that canot be changed
+                    unset($data['username']);
+                    $data['last_seen'] = time();
+
+                    if (empty($password)) {
+                        unset($data['hash_pass']);
+                    }
+
+
+
+                    // Update the user details
+                    $this->model->_update($update_id, $data);
+                    $message = "The user details were successfully updated.";
+                    $this->site_security->_alert('Info! ', 'alert alert-success', $message);
+                    redirect('user/create/' . $update_id);
+                } else {
+                    // Insert a new Item
+                    $this->model->_insert($data);
+                    $update_id = $this->model->get_max(); // get the ID of the new item
+
+                    $message = "The user was successfully added.";
+                    $this->site_security->_alert('Info! ', 'alert alert-success', $message);
+                    redirect('user/create/' . $update_id);
+                }
+            }
+        }
+
+
+        if ((is_numeric($update_id)) && ($submit != "Submit")) {
+            $data = $this->fetch_data_from_db($update_id);
+        } else {
+            $data = $this->fetch_data_from_post();
+        }
+
+        if (!is_numeric($update_id)) {
+            $data['headline'] = "Add New User";
+        } else {
+            $data['headline'] = "Update User Details";
+        }
+
+        $data['update_id'] = $update_id;
+        $data['page_title'] = "Administration > Manage Users > Create > " .$update_id;
+        $data['page_description'] = "";
+        $data['logged_user'] = $this->_logged_user;
+        $data['alert'] = isset($this->session->alert) ? $this->session->alert : "";
+        $data['module'] = $this->_module;
+        $data['view_file'] = "create";
+
+        echo Modules::run('template/admin', $data);
+    }
+
 	public function deleteconf() {
 
         // in future, check for security
@@ -115,7 +224,64 @@ class User extends MX_Controller {
     }
 
 
-    // Standard Functions for all controllers.
+	// Standard Functions for all controllers.
+
+	function check_uniq_row($row, $value) {
+        $this->site_security->_make_sure_is_admin();
+
+        $value = trim($value);
+        $query = $this->get_where_row($row, $value);
+
+        $num_rows = $query->num_rows();
+
+        if ($num_rows > 0) {
+            $this->form_validation->set_message($row . '_check', 'The ' . $row . ': ' . $value . ' is not aviable.');
+            return FALSE;
+        } else {
+            return TRUE;
+        }
+	}
+	
+	function fetch_data_from_post() {
+        // Get the post variables
+        $data['username'] = $this->input->post('username', TRUE);
+        $data['hash_pass'] = $this->input->post('password', TRUE);
+        $data['email'] = $this->input->post('email', TRUE);
+        $data['first_name'] = $this->input->post('first_name', TRUE);
+        $data['last_name'] = $this->input->post('last_name', TRUE);
+        $data['role'] = $this->input->post('role', TRUE);
+        $data['last_seen'] = $this->input->post('last_seen', TRUE);
+        $data['token'] = $this->input->post('token', TRUE);
+        $data['status'] = $this->input->post('status', TRUE);
+        $data['register_date'] = $this->input->post('register_date', TRUE);
+        return $data;
+    }
+
+    function fetch_data_from_db($update_id) {
+        // Get the row from database
+        $row = $this->model->get_where_row('id', $update_id);
+        /*
+         * @param $row = object
+         */
+        $data['id'] = $row->id;
+        $data['username'] = $row->username;
+        $data['password'] = $row->hash_pass;
+        $data['email'] = $row->email;
+        $data['first_name'] = $row->first_name;
+        $data['last_name'] = $row->last_name;
+        $data['role'] = $row->role;
+        $data['last_seen'] = $row->last_seen;
+        $data['token'] = $row->token;
+        $data['status'] = $row->status;
+        $data['register_date'] = $row->register_date;
+
+        if (!isset($data)) {
+            $data = "";
+        }
+
+        return $data;
+    }
+
     function get($order_by = FALSE) {
         if ($order_by != FALSE) {
             $query = $this->model->get($order_by);
