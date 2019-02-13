@@ -21,7 +21,9 @@ class User extends MX_Controller {
         $this->load->module('site_security');
         $this->_module = $this->site_security->_get_module_name();
         // Get The logged User
-        $this->_logged_user = $this->site_security->_get_logged_user();
+		$this->_logged_user = $this->site_security->_get_logged_user();
+		// Load the settings module
+		$this->load->module('site_settings');
     }
 
     public function index() {
@@ -35,6 +37,33 @@ class User extends MX_Controller {
 
         echo Modules::run('template/public_full', $data);
 
+	}
+
+	public function manage() {
+
+        // in future, check for security
+        $this->site_security->_make_sure_is_admin();
+
+        // Count rows for pagination
+        $this->load->library('pagination');
+        $config = $this->site_settings->_config_pagination("user/manage", 3);
+        $result = $this->db->get('user');
+        $data['total_rows'] = $config['total_rows'] = $result->num_rows();
+        $this->pagination->initialize($config);
+
+        // Get rows for display
+
+
+		$data['query'] = $this->get_with_limit($config['per_page'], $this->uri->segment(3), 'register_date DESC');
+		
+        $data['page_title'] = "Administration > Manage Users";
+        $data['page_description'] = "";
+        $data['logged_user'] = $this->_logged_user;
+        $data['alert'] = isset($this->session->alert) ? $this->session->alert : "";
+        $data['module'] = $this->_module;
+        $data['view_file'] = "manage";
+
+        echo Modules::run('template/admin', $data);
     }
 
 
