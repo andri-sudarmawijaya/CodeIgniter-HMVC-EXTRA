@@ -55,7 +55,7 @@ class User extends MX_Controller {
 
 
 		$data['query'] = $this->get_with_limit($config['per_page'], $this->uri->segment(3), 'register_date DESC');
-		
+
         $data['page_title'] = "Administration > Manage Users";
         $data['page_description'] = "";
         $data['logged_user'] = $this->_logged_user;
@@ -64,6 +64,54 @@ class User extends MX_Controller {
         $data['view_file'] = "manage";
 
         echo Modules::run('template/admin', $data);
+	}
+
+	public function deleteconf() {
+
+        // in future, check for security
+        $this->site_security->_make_sure_is_admin();
+
+        $data['update_id'] = trim($this->uri->segment(3));
+
+        if (!is_numeric($data['update_id'])) {
+            redirect('admin');
+        }
+
+        $data['query'] = $this->get_where_row('id', $data['update_id']);
+
+        $data['page_title'] = "Administration > Delete User > ".$data['query']->username;
+        $data['page_description'] = "";
+        $data['logged_user'] = $this->_logged_user;
+        $data['alert'] = isset($this->session->alert) ? $this->session->alert : "";
+        $data['module'] = $this->_module;
+        $data['view_file'] = "deleteconf";
+
+        echo Modules::run('template/admin', $data);
+    }
+
+    public function delete($id = FALSE) {
+        if ($id != FALSE) {
+            $this->site_security->_make_sure_is_admin();
+            $id = trim($id);
+            $row = $this->get_where_row('id', $id);
+
+            if ($row) {
+                // Genre found in database, attempt to delete
+                if ($row->username == "admin") {
+                    $message = "You can't delete the administrator of the website.";
+                    $this->site_security->_alert('Danger! ', 'alert alert-danger', $message);
+                    redirect("user/manage");
+                } else {
+                    $this->_delete($id);
+
+                    $message = "The user was successfully deleted.";
+                    $this->site_security->_alert('Info! ', 'alert alert-success', $message);
+                    redirect("user/manage");
+                }
+            }
+        } else {
+            show_404();
+        }
     }
 
 

@@ -58,6 +58,7 @@
                                 <th>#</th>
                                 <th>Status</th>
                                 <th>Username</th>
+								<th>Email</th>
                                 <th>Options</th>
                             </tr>
                         </thead>
@@ -81,6 +82,7 @@
                                     <td><?= $nr ?></td>
                                     <td><?= $status ?></td>
                                     <td><?= $row->username ?></td>
+									<td><?= $row->email ?></td>
                                     <td>
                                         <a class="btn btn-info" href="<?= base_url('user/create/' . $row->id) ?>">
                                             <i class="fa fa-edit"></i>
