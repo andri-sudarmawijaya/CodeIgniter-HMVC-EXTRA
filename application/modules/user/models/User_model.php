@@ -21,11 +21,13 @@ class User_model extends CI_Model {
         return $query->result();
     }
 
-    function search($row, $query, $order_by, $limit, $offset) {
+    function search($query) {
         $table = $this->get_table();
-        $this->db->like($row, $query);
-        $this->db->limit($limit, $offset);
-        $this->db->order_by($order_by);
+        $this->db->like('username', $query);
+        $this->db->or_like('email', $query);
+        $this->db->or_like('first_name', $query);
+        $this->db->or_like('last_name', $query);
+        $this->db->order_by("username ASC");
         $query = $this->db->get($table);
         return $query->result();
     }

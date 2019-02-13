@@ -49,8 +49,8 @@ class Controller extends MX_Controller {
         return $query;
     }
 
-    function search($row, $query, $order_by, $limit, $offset) {
-        $query = $this->model->search($row, $query, $order_by, $limit, $offset);
+    function search_query($query) {
+        $query = $this->model->search($query);
         return $query;
     }
 

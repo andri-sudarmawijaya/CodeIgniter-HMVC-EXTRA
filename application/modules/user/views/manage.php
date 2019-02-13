@@ -33,7 +33,7 @@
                 <div class="tile-body">
                     <form class="row" method="get" action="<?= base_url('user/search') ?>">
                         <div class="form-group col-md-8">
-                            <label class="control-label">The query will search in: username/email/dj_alias</label>
+                            <label class="control-label">The query will search in: username/email/first and last name</label>
                             <input class="form-control" type="text" name="query"  placeholder="Search for">
                         </div>
                         <div class="form-group col-md-4 align-self-end">
@@ -50,7 +50,11 @@
 
         <div class="col-md-12">
             <div class="tile">
-                <h3>There are <strong><?= $total_rows ?></strong> users in database.</h3>
+                <?php if($total_rows == 1): ?>
+                    <h3>There is <strong><?= $total_rows ?></strong> user in database.</h3>
+                <?php else: ?>
+                    <h3>There are <strong><?= $total_rows ?></strong> users in database.</h3>
+                <?php endif; ?>
                 <div class="table-responsive">
                     <table class="table table-striped table-hover">
                         <thead>

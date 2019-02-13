@@ -36,6 +36,36 @@ class User extends MX_Controller {
 
 	}
 
+    public function search() {
+
+        // check for security
+        $this->site_security->_make_sure_is_admin();
+
+        // get th query from _GET
+        $search_query = $this->input->get('query');
+        $data['search_query'] = $this->input->get('query');
+
+        if (strlen($search_query) < 3) {
+            redirect('user/manage');
+        }
+
+        // Get rows for display
+
+        $data['query'] = $this->search_query($search_query);
+
+        $data['headline'] = "You searched for: {$search_query}";
+        $data['page_title'] = "You searched for: {$search_query}";
+        $data['page_description'] = "";
+        $data['logged_user'] = $this->_logged_user;
+        $data['alert'] = isset($this->session->alert) ? $this->session->alert : "";
+        $data['module'] = $this->_module;
+        $data['view_file'] = "search";
+
+        echo Modules::run('template/admin', $data);
+    }
+
+
+
 	public function manage() {
 
         // in future, check for security
@@ -292,8 +322,8 @@ class User extends MX_Controller {
         return $query;
     }
 
-    function search($row, $query, $order_by, $limit, $offset) {
-        $query = $this->model->search($row, $query, $order_by, $limit, $offset);
+    function search_query($query) {
+        $query = $this->model->search($query);
         return $query;
     }
 
