@@ -1,10 +1,13 @@
 {
-	"description": "This will install Codeigniter 3.1.10 with HMVC for PHP 7 with fixed bugs ",
-	"name": "xttrust/codeigniter_3.1.10_hmvc",
-	"type": "project",
-	"homepage": "https://github.com/xttrust/codeigniter_3.1.10_hmvc",
-	"license": "MIT",
-	"require": {
-		"php": ">=5.2.4"
-	},
+    "name": "xttrust/codeigniter-hmvc-extra",
+    "description": "This will install CodeIgniter 3.1.10 with HMVC for PHP 7 with some extra modules.",
+    "type": "project",
+    "authors": [
+        {
+            "name": "xttrust",
+            "email": "xttrust@live.com"
+        }
+    ],
+    
+    "require": {}
 }
