@@ -190,12 +190,13 @@ class User extends MX_Controller {
 
         if (!is_numeric($update_id)) {
             $data['headline'] = "Add New User";
+            $data['page_title'] = "Administration > Create new user";
         } else {
             $data['headline'] = "Update User Details";
+            $data['page_title'] = "Manage user details: ".$data['username'];
         }
 
         $data['update_id'] = $update_id;
-        $data['page_title'] = "Administration > Manage Users > Create > " .$update_id;
         $data['page_description'] = "";
         $data['logged_user'] = $this->_logged_user;
         $data['alert'] = isset($this->session->alert) ? $this->session->alert : "";

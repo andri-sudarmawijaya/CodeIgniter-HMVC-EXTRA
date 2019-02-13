@@ -13,6 +13,7 @@
       <div class="tile">
         <div class="tile-body">
           <?= $alert; ?>
+          <h1>Welcome to your dashboard.</h1>
         </div>
       </div>
     </div>
