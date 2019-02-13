@@ -26,9 +26,9 @@
                 <i class="treeview-indicator fa fa-angle-right"></i>
             </a>
             <ul class="treeview-menu"> 
-                <li><a class="treeview-item <?= active_status($this->uri->segment(1), '#', " active ") ?>"
-                       href="<?= base_url('#') ?>">
-                        <i class="icon fa fa-file"></i> Module Name</a>
+                <li><a class="treeview-item <?= active_status($this->uri->segment(1), 'user', " active ") ?>"
+                       href="<?= base_url('user/manage') ?>">
+                        <i class="icon fa fa-users"></i> Manage Users</a>
                 </li>
             </ul>
         </li>
