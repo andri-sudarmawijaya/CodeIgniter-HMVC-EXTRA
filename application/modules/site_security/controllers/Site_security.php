@@ -71,7 +71,6 @@ class Site_security extends MX_Controller {
         $this->session->mark_as_flash('alert');
     }
 
-    
 
 
 
