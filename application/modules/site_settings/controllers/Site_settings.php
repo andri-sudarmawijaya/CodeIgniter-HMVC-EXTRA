@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Site_settings extends MX_Controller {
+class Site_settings extends MY_Controller {
 
     function __construct() {
         parent::__construct();

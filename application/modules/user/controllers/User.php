@@ -2,9 +2,8 @@
 
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class User extends MX_Controller {
+class User extends MY_Controller {
 
-    protected $model = '';
     protected $_module = '';
     protected $_logged_user = '';
 
@@ -51,7 +50,7 @@ class User extends MX_Controller {
 
         // Get rows for display
 
-        $data['query'] = $this->search_query($search_query);
+        $data['query'] = $this->search_query($search_query, 'username', 'email', 'first_name', 'last_name');
 
         $data['headline'] = "You searched for: {$search_query}";
         $data['page_title'] = "You searched for: {$search_query}";
@@ -63,8 +62,6 @@ class User extends MX_Controller {
 
         echo Modules::run('template/admin', $data);
     }
-
-
 
 	public function manage() {
 
@@ -115,7 +112,12 @@ class User extends MX_Controller {
 
         if ($submit == "Submit") {
             // Process the form
-            $data = $this->fetch_data_from_post();
+            $db_columns = array(
+				'username', 'role', 'status', 'email', 'first_name', 
+				'last_name', 'password', 'repeat_password'
+			);
+			$data = $this->get_data_from_post($db_columns);
+
             $password = trim($this->input->post('password', TRUE));
 
             $this->form_validation->set_rules('first_name', 'First Name', 'required|min_length[2]|max_length[50]');
@@ -155,14 +157,13 @@ class User extends MX_Controller {
 
                 if (is_numeric($update_id)) {
                     // Unset data for update that canot be changed
-                    unset($data['username']);
+					unset($data['username']);
+					unset($data['repeat_password']);
                     $data['last_seen'] = time();
 
                     if (empty($password)) {
                         unset($data['hash_pass']);
                     }
-
-
 
                     // Update the user details
                     $this->model->_update($update_id, $data);
@@ -170,7 +171,7 @@ class User extends MX_Controller {
                     $this->site_security->_alert('Info! ', 'alert alert-success', $message);
                     redirect('user/create/' . $update_id);
                 } else {
-                    // Insert a new Item
+					// Insert a new Item
                     $this->model->_insert($data);
                     $update_id = $this->model->get_max(); // get the ID of the new item
 
@@ -183,11 +184,15 @@ class User extends MX_Controller {
 
 
         if ((is_numeric($update_id)) && ($submit != "Submit")) {
-            $data = $this->fetch_data_from_db($update_id);
+            $data = $this->get_data_from_db($update_id)[0];
         } else {
-            $data = $this->fetch_data_from_post();
-        }
-
+			$db_columns = array(
+				'username', 'role', 'status', 'email', 'first_name', 
+				'last_name', 'password', 'repeat_password'
+			);
+			$data = $this->get_data_from_post($db_columns);
+		}
+		
         if (!is_numeric($update_id)) {
             $data['headline'] = "Add New User";
             $data['page_title'] = "Administration > Create new user";
@@ -254,137 +259,5 @@ class User extends MX_Controller {
         }
     }
 
-
-	// Standard Functions for all controllers.
-
-	function check_uniq_row($row, $value) {
-        $this->site_security->_make_sure_is_admin();
-
-        $value = trim($value);
-        $query = $this->get_where_row($row, $value);
-
-        $num_rows = $query->num_rows();
-
-        if ($num_rows > 0) {
-            $this->form_validation->set_message($row . '_check', 'The ' . $row . ': ' . $value . ' is not aviable.');
-            return FALSE;
-        } else {
-            return TRUE;
-        }
-	}
-	
-	function fetch_data_from_post() {
-        // Get the post variables
-        $data['username'] = $this->input->post('username', TRUE);
-        $data['hash_pass'] = $this->input->post('password', TRUE);
-        $data['email'] = $this->input->post('email', TRUE);
-        $data['first_name'] = $this->input->post('first_name', TRUE);
-        $data['last_name'] = $this->input->post('last_name', TRUE);
-        $data['role'] = $this->input->post('role', TRUE);
-        $data['last_seen'] = $this->input->post('last_seen', TRUE);
-        $data['token'] = $this->input->post('token', TRUE);
-        $data['status'] = $this->input->post('status', TRUE);
-        $data['register_date'] = $this->input->post('register_date', TRUE);
-        return $data;
-    }
-
-    function fetch_data_from_db($update_id) {
-        // Get the row from database
-        $row = $this->model->get_where_row('id', $update_id);
-        /*
-         * @param $row = object
-         */
-        $data['id'] = $row->id;
-        $data['username'] = $row->username;
-        $data['password'] = $row->hash_pass;
-        $data['email'] = $row->email;
-        $data['first_name'] = $row->first_name;
-        $data['last_name'] = $row->last_name;
-        $data['role'] = $row->role;
-        $data['last_seen'] = $row->last_seen;
-        $data['token'] = $row->token;
-        $data['status'] = $row->status;
-        $data['register_date'] = $row->register_date;
-
-        if (!isset($data)) {
-            $data = "";
-        }
-
-        return $data;
-    }
-
-    function get($order_by = FALSE) {
-        if ($order_by != FALSE) {
-            $query = $this->model->get($order_by);
-        } else {
-            $query = $this->model->get();
-        }
-
-        return $query;
-    }
-
-    function search_query($query) {
-        $query = $this->model->search($query);
-        return $query;
-    }
-
-    function get_with_limit($limit, $offset, $order_by) {
-        $query = $this->model->get_with_limit($limit, $offset, $order_by);
-        return $query;
-    }
-
-    function get_where_id($id) {
-        $query = $this->model->get_where_id($id);
-        return $query;
-    }
-    
-    function get_where($col, $value) {
-        $query = $this->model->get_where($col, $value);
-        return $query;
-    }
-
-    function get_where_row($col, $value) {
-        $query = $this->model->get_where_row($col, $value);
-        return $query;
-    }
-
-    function get_where_list($col, $value) {
-        $query = $this->model->get_where_list($col, $value);
-        return $query;
-    }
-
-    function _insert($data) {
-        $this->model->_insert($data);
-    }
-
-    function _update($id, $data) {
-        $this->model->_update($id, $data);
-    }
-
-    function _delete($id) {
-        $this->model->_delete($id);
-    }
-    
-    function count_all() {
-        $count = $this->model->count_all();
-        return $count;
-    }
-
-    function count_where($column, $value) {
-        $count = $this->model->count_where($column, $value);
-        return $count;
-    }
-
-    function get_max() {
-        $max_id = $this->model->get_max();
-        return $max_id;
-    }
-
-    function _custom_query($mysql_query) {
-        $query = $this->model->_custom_query($mysql_query);
-        return $query;
-    }
-
-    
 
 }
