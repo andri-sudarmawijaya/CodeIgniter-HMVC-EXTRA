@@ -172,6 +172,8 @@ class User extends MY_Controller {
                     redirect('user/create/' . $update_id);
                 } else {
 					// Insert a new Item
+					unset($data['password']);
+					unset($data['repeat_password']);
                     $this->model->_insert($data);
                     $update_id = $this->model->get_max(); // get the ID of the new item
 

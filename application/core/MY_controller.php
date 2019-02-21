@@ -83,8 +83,8 @@ class MY_Controller extends MX_Controller
         return $count;
     }
 
-    function get_max() {
-        $max_id = $this->model->get_max();
+    function get_max($id) {
+        $max_id = $this->model->get_max($id);
         return $max_id;
     }
 
