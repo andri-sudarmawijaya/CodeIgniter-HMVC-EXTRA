@@ -1,7 +1,7 @@
 # CodeIgniter-HMVC-EXTRA
 This will install CodeIgniter 3.1.10 with HMVC for PHP 7 with some extra modules. Font awesome and Twitter Bootstrap integrated into the templates plus admin vali theme functioning.
 # Install using composer
-composer create-project xttrust/codeigniter_3.1.10_hmvc
+composer create-project xttrust/codeigniter-hmvc-extra
 # Usage
 This will create a new project with all necessary files to work faster.
 # Help
