@@ -103,12 +103,8 @@
                         </tbody>
                     </table>
 
-                    <div>
-                        <ul class="pagination">
-                            <?= $this->pagination->create_links(); ?>
-                        </ul>
-                    </div>
 
+                    <?= $this->pagination->create_links(); ?>
 
                 </div>
             </div>

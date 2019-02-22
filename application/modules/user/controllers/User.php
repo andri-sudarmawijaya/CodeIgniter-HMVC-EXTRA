@@ -22,19 +22,6 @@ class User extends MY_Controller {
 		$this->load->module('site_settings');
     }
 
-    public function index() {
-
-        $data['page_title'] = "Codeigniter 3.1.10 with HVMC in 2019 by xttrust";
-        $data['page_description'] = "Codeigniter 3.1.10 with HVMC in 2019 by xttrust";
-        $data['logged_user'] = $this->_logged_user;
-        $data['alert'] = isset($this->session->alert) ? $this->session->alert : "";
-        $data['module'] = $this->_module;
-        $data['view_file'] = "index";
-
-        echo Modules::run('template/public_full', $data);
-
-	}
-
     public function search() {
 
         // check for security
@@ -69,19 +56,23 @@ class User extends MY_Controller {
         $this->site_security->_make_sure_is_admin();
 
         // Count rows for pagination
-        $this->load->library('pagination');
-        $config = $this->site_settings->_config_pagination("user/manage", 3);
-        $result = $this->db->get('user');
-        $data['total_rows'] = $config['total_rows'] = $result->num_rows();
+        // #1 = the uri string, 
+        // #2 = $this->uri->segment(3), 
+        // #3 = how many items per page, 
+        // #4 = how many to left and right 
+        // EX: 1 means << 1 active 3 >>
+        // Ex: 3 means << 1 2 3 active 5 6 7 >>
+        $config = $this->site_security->_config_pagination('user/manage', '3', '1', '1');
+        $config['total_rows'] = $this->count_all();
         $this->pagination->initialize($config);
 
         // Get rows for display
-
-
 		$data['query'] = $this->get_with_limit($config['per_page'], $this->uri->segment(3), 'register_date DESC');
 
+        // Configure the data that all pages should have
         $data['page_title'] = "Administration > Manage Users";
         $data['page_description'] = "";
+        $data['total_rows'] = $config['total_rows'];
         $data['logged_user'] = $this->_logged_user;
         $data['alert'] = isset($this->session->alert) ? $this->session->alert : "";
         $data['module'] = $this->_module;
