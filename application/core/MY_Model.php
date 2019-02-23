@@ -74,7 +74,7 @@ class MY_Model extends CI_Model
         $this->db->select_max($column);
         $query = $this->db->get($this->table);
         $row = $query->row();
-        $result = $row->column;
+        $result = $row->$column;
         return $result;
     }
 
